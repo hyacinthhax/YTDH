@@ -6,11 +6,12 @@ import os
 
 def youtubedownload():
 	url = input('Please enter the URL:  ')
+	print('Downloading... Please Wait... ')
 	ytd = YouTube(url).streams.first().download()
-	print('Downloading... ')
 	print(ytd)
 
 youtubedownload()
 input('Enter To Continue... ')
 os.system('cls' if os.name == 'nt' else 'clear')
-youtubedownload()
+while True:
+	youtubedownload()
