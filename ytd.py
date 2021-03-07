@@ -9,9 +9,10 @@ def youtubedownload():
 	print('Downloading... Please Wait... ')
 	ytd = YouTube(url).streams.first().download()
 	print(ytd)
+	os.system('cls' if os.name == 'nt' else 'clear')
 
 youtubedownload()
 input('Enter To Continue... ')
-os.system('cls' if os.name == 'nt' else 'clear')
+
 while True:
 	youtubedownload()
