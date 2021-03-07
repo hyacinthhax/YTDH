@@ -8,8 +8,8 @@ def youtubedownload():
 	url = input('Please enter the URL:  ')
 	print('Downloading... Please Wait... ')
 	ytd = YouTube(url).streams.first().download()
-	print(ytd)
 	os.system('cls' if os.name == 'nt' else 'clear')
+	print(ytd)
 
 youtubedownload()
 input('Enter To Continue... ')
