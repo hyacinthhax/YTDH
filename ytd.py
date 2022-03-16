@@ -6,10 +6,17 @@ import os
 
 
 def youtubedownload():
+    exits = ['quit', 'exit', 'stop', 'q', 'leave']
     src = os.getcwd()
     menu = input(
-        "Select 1 or 2 \n(1) One URL Download \n(2) Playlist Download \n(3) View Current Files \n>")
-    if int(menu) == 1:
+        "Select 1 or 2 \n(1) One URL Download \n(2) Playlist Download \n(3) View Current Files \n<>")
+    if menu == "":
+        return youtubedownload()
+
+    elif menu.lower() in exits:
+        quit()
+
+    elif int(menu) == 1:
         url = input('Please enter the URL:  ')
         print(f'Downloading {url} ... Please Wait... ')
         yt = YouTube(url)
@@ -17,6 +24,7 @@ def youtubedownload():
             'resolution').desc().first()
         stream.download()
     elif int(menu) == 2:
+        os.system('cls' if os.name == 'nt' else 'clear')
         url = input('Please enter playlist URL:  ')
         playlist_name = input("Please enter playlist Name:  ")
         playlist = Playlist(url)
@@ -38,10 +46,13 @@ def youtubedownload():
 
     else:
         print("Select 1-3!")
+        return youtubedownload()
 
 
 youtubedownload()
 input('Enter To Continue... ')
+os.system('cls' if os.name == 'nt' else 'clear')
 
 while True:
     youtubedownload()
+
