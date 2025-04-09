@@ -38,45 +38,47 @@ def open_file(path):
 USE_YTDLP = True
 
 def download_video(url):
+    try:
+        print(f"Downloading with yt-dlp: {url}")
+        cmd = ['yt-dlp', url, '-P', DOWNLOAD_DIR]
+        if proxy_set:
+            cmd.extend(['--proxy', f"http://{proxy}"])
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"yt-dlp failed for {url}. Error: {e}")
+
+
+def download_playlist(playlist_url):
+    try:
+        print(f"Downloading playlist with yt-dlp: {playlist_url}")
+        cmd = ['yt-dlp', playlist_url, '-P', DOWNLOAD_DIR]
+        if proxy_set:
+            cmd.extend(['--proxy', f"http://{proxy}"])
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"yt-dlp playlist failed. Error: {e}")
+
+def mp3_download(url):
     if USE_YTDLP:
         try:
-            print(f"Downloading with yt-dlp: {url}")
-            cmd = ['yt-dlp', url, '-P', DOWNLOAD_DIR]
+            print(f"Downloading mp3 with yt-dlp: {url}")
+            cmd = ['yt-dlp', '--extract-audio --audio-format mp3', url]
             if proxy_set:
                 cmd.extend(['--proxy', f"http://{proxy}"])
             subprocess.run(cmd, check=True)
         except subprocess.CalledProcessError as e:
             print(f"yt-dlp failed for {url}. Error: {e}")
-    else:
-        try:
-            ytd = YouTube(url)
-            stream = ytd.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-            stream.download(output_path=DOWNLOAD_DIR, timeout=100000)
-            print(f"Downloaded: {ytd.title}")
-        except Exception as e:
-            print(f"Failed to download {url}. Error: {e}")
 
 
-def download_playlist(playlist_url):
-    if USE_YTDLP:
-        try:
-            print(f"Downloading playlist with yt-dlp: {playlist_url}")
-            cmd = ['yt-dlp', playlist_url, '-P', DOWNLOAD_DIR]
-            if proxy_set:
-                cmd.extend(['--proxy', f"http://{proxy}"])
-            subprocess.run(cmd, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"yt-dlp playlist failed. Error: {e}")
-    else:
-        try:
-            playlist = Playlist(playlist_url)
-            print(f"Downloading playlist: {playlist.title}")
-            for index, video_url in enumerate(playlist.video_urls, start=1):
-                print(f"Downloading video {index}/{len(playlist.video_urls)}: {video_url}")
-                download_video(video_url)
-            print("Playlist download complete.")
-        except Exception as e:
-            print(f"Failed to download playlist. Error: {e}")
+def mp3_playllist_download(playlist_url):
+    try:
+        print(f"Downloading playlist with yt-dlp: {playlist_url}")
+        cmd = ['yt-dlp', '--extract-audio --audio-format mp3 --audio-quality 0', playlist_url]
+        if proxy_set:
+            cmd.extend(['--proxy', f"http://{proxy}"])
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"yt-dlp playlist failed. Error: {e}")
 
 
 def download_from_file():
@@ -117,8 +119,20 @@ class YTDLPApp(tk.Tk):
 
         tk.Button(btn_frame, text="Download Video", command=self.popup_video).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Download Playlist", command=self.popup_playlist).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Download MP3", command=self.popup_mp3).pack(side=tk.LEFT, padx=5)
+        tk.Button(btn_frame, text="Playlist MP3", command=self.popup_playlist_mp3).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="From File", command=self.run_file_download).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Refresh", command=self.load_downloaded_files).pack(side=tk.LEFT, padx=5)
+
+    def popup_mp3(self):
+        url = simpledialog.askstring("Download Video", "Enter video URL:")
+        if url:
+            threading.Thread(target=self.threaded_download_video, args=(url,), daemon=True).start()
+
+    def popup_playlist_mp3(self):
+        url = simpledialog.askstring("Download Playlist", "Enter playlist URL:")
+        if url:
+            threading.Thread(target=self.threaded_download_playlist, args=(url,), daemon=True).start()
 
     def popup_video(self):
         url = simpledialog.askstring("Download Video", "Enter video URL:")
