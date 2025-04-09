@@ -34,9 +34,6 @@ def open_file(path):
     except Exception as e:
         messagebox.showerror("Error", f"Failed to open: {e}")
 
-
-USE_YTDLP = True
-
 def download_video(url):
     try:
         print(f"Downloading with yt-dlp: {url}")
@@ -59,15 +56,14 @@ def download_playlist(playlist_url):
         print(f"yt-dlp playlist failed. Error: {e}")
 
 def mp3_download(url):
-    if USE_YTDLP:
-        try:
-            print(f"Downloading mp3 with yt-dlp: {url}")
-            cmd = ['yt-dlp', '--extract-audio --audio-format mp3', url]
-            if proxy_set:
-                cmd.extend(['--proxy', f"http://{proxy}"])
-            subprocess.run(cmd, check=True)
-        except subprocess.CalledProcessError as e:
-            print(f"yt-dlp failed for {url}. Error: {e}")
+    try:
+        print(f"Downloading mp3 with yt-dlp: {url}")
+        cmd = ['yt-dlp', '--extract-audio --audio-format mp3', url]
+        if proxy_set:
+            cmd.extend(['--proxy', f"http://{proxy}"])
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"yt-dlp failed for {url}. Error: {e}")
 
 
 def mp3_playllist_download(playlist_url):
