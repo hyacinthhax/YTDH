@@ -37,7 +37,12 @@ def open_file(path):
 def download_video(url):
     try:
         print(f"Downloading with yt-dlp: {url}")
-        cmd = ['yt-dlp', url, '-P', DOWNLOAD_DIR]
+        cmd = [
+            'yt-dlp',
+            '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            url,
+            '-P', DOWNLOAD_DIR
+        ]
         if proxy_set:
             cmd.extend(['--proxy', f"http://{proxy}"])
         subprocess.run(cmd, check=True)
@@ -48,7 +53,12 @@ def download_video(url):
 def download_playlist(playlist_url):
     try:
         print(f"Downloading playlist with yt-dlp: {playlist_url}")
-        cmd = ['yt-dlp', playlist_url, '-P', DOWNLOAD_DIR]
+        cmd = [
+            'yt-dlp',
+            '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            playlist_url,
+            '-P', DOWNLOAD_DIR
+        ]
         if proxy_set:
             cmd.extend(['--proxy', f"http://{proxy}"])
         subprocess.run(cmd, check=True)
@@ -58,7 +68,13 @@ def download_playlist(playlist_url):
 def mp3_download(url):
     try:
         print(f"Downloading mp3 with yt-dlp: {url}")
-        cmd = ['yt-dlp', '--extract-audio --audio-format mp3', url]
+        cmd = [
+            'yt-dlp',
+            '--extract-audio',
+            '--audio-format', 'mp3',
+            '--audio-quality', '0',
+            url
+        ]
         if proxy_set:
             cmd.extend(['--proxy', f"http://{proxy}"])
         subprocess.run(cmd, check=True)
@@ -69,7 +85,13 @@ def mp3_download(url):
 def mp3_playllist_download(playlist_url):
     try:
         print(f"Downloading playlist with yt-dlp: {playlist_url}")
-        cmd = ['yt-dlp', '--extract-audio --audio-format mp3 --audio-quality 0', playlist_url]
+        cmd = [
+            'yt-dlp',
+            '--extract-audio',
+            '--audio-format', 'mp3',
+            '--audio-quality', '0',
+            playlist_url
+        ]
         if proxy_set:
             cmd.extend(['--proxy', f"http://{proxy}"])
         subprocess.run(cmd, check=True)
@@ -100,7 +122,7 @@ class YTDLPApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("yt-dlp GUI (with pytube)")
-        self.geometry("600x400")
+        self.geometry("720x480")
 
         self.create_widgets()
         self.load_downloaded_files()
