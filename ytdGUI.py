@@ -7,9 +7,14 @@ import tkinter as tk
 from tkinter import simpledialog, messagebox
 
 from pytube import YouTube, Playlist
+import os
 
-choices_yes = ["y", "yes", "yea", "ya", "yez", "yup", "ye", "yeah"]
-DOWNLOAD_DIR = os.path.join(os.getcwd(), "YTDLP")
+# Set current directory to script directory for resource loading
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+choices_yes = ["y", "yes", "yea", "ya", "yez", "yup", "ye", "yeah", "yah"]
+DOWNLOAD_DIR = os.path.join(os.getcwd(), "../YTDLP")
 DEBUG_FILE = 'DownloadList.txt'
 safety = input("Download with Safety?(Public Only): ").lower() in choices_yes
 proxy_set = input("Use proxy? (y/n): ").lower() in choices_yes
@@ -99,17 +104,17 @@ def download_playlist(playlist_url, safety=True):
 
                 if os.path.exists(file_path):
                     print(f"    Skipped (already downloaded): {filename}")
-                    continue
+                    return
             except subprocess.CalledProcessError as e:
                 print(f"    Failed to get filename for {full_url}. Error: {e}")
-                continue
+                return
 
             # Step 3: Download the video
             print(f"    Downloading: {full_url}")
             if not safety:
                 cmd_dl = [
                     'yt-dlp',
-                    '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+                    "-f bestvideo[ext=mp4][fps>30]+bestaudio[ext=m4a]/best[ext=mp4]",
                     full_url,
                     '-P', DOWNLOAD_DIR
                 ]
@@ -117,7 +122,7 @@ def download_playlist(playlist_url, safety=True):
                 cmd_dl = [
                     'yt-dlp',
                     '--match-filter', 'availability = "public"',
-                    '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+                    "-f bestvideo[ext=mp4][fps>30]+bestaudio[ext=m4a]/best[ext=mp4]",
                     full_url,
                     '-P', DOWNLOAD_DIR
                 ]
@@ -263,7 +268,7 @@ class YTDLPApp(tk.Tk):
         selection = self.listbox.curselection()
         if selection:
             file_path = self.listbox.get(selection[0])
-            open_file(file_path)
+            open_file(os.path.join(DOWNLOAD_DIR, file_path))
 
 
 if __name__ == "__main__":
