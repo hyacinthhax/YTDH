@@ -42,48 +42,36 @@ def open_file(path):
 
 def download_video(url, safety=True):
     try:
-        print(f"Downloading with yt-dlp: {url}")
-        cmd = ['yt-dlp', '--get-filename', '-o', '%(title)s.%(ext)s', url]
-        if proxy_set:
-            cmd.extend(['--proxy', f"http://{proxy}"])
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        filename = result.stdout.strip()
-        file_path = os.path.join(DOWNLOAD_DIR, filename)
+        print(f"Downloading: {url}")
 
-        if os.path.exists(file_path):
-            print(f"Already downloaded: {filename}")
-            pass
+        clean_url = url.split("&")[0]  # removes ?si= garbage safely
 
-        if not safety:
-            cmd = [
-                'yt-dlp',
-                '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                url,
-                '-P', DOWNLOAD_DIR
-            ]
+        cmd = [
+            'yt-dlp',
+            '-f', 'bv*+ba/b',
+            '--merge-output-format', 'mp4',
+            '-P', DOWNLOAD_DIR,
+            clean_url
+        ]
 
         if safety:
-            cmd = [
-                'yt-dlp',
-                '--match-filter', 'availability = "public"',
-                '-f', 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                url,
-                '-P', DOWNLOAD_DIR
-            ]
+            cmd.insert(1, '--match-filter')
+            cmd.insert(2, 'availability = "public"')
 
         if proxy_set:
             cmd.extend(['--proxy', f"http://{proxy}"])
+
         subprocess.run(cmd, check=True)
+
     except subprocess.CalledProcessError as e:
         print(f"yt-dlp failed for {url}. Error: {e}")
-
 
 def download_playlist(playlist_url, safety=True):
     try:
         print(f"Scanning playlist: {playlist_url}")
 
         # Step 1: Get video URLs from the playlist
-        cmd_list = ['yt-dlp', '--flat-playlist', '--print', '%(url)s', playlist_url]
+        cmd_list = ['yt-dlp', '--flat-playlist', '--print', 'https://www.youtube.com/watch?v=%(id)s', playlist_url]
         if proxy_set:
             cmd_list.extend(['--proxy', f"http://{proxy}"])
         result = subprocess.run(cmd_list, capture_output=True, text=True, check=True)
